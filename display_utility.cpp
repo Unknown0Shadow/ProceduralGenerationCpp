@@ -45,9 +45,10 @@ void displayMapValues(char map[], int HEIGHT, int WIDTH)
 /// <param name="map"></param>
 /// <param name="HEIGHT"></param>
 /// <param name="WIDTH"></param>
-void displayMap(std::vector<char> map, int HEIGHT, int WIDTH, char block, char path, char uncharted)
+void displayMap(std::vector<char> map, int HEIGHT, int WIDTH, char block, char path, char uncharted, bool MERGED)
 {
-	int buffer_size = WIDTH * HEIGHT * 9;
+
+	int buffer_size = (MERGED) ? ((WIDTH * 2 + 1) * (HEIGHT * 2 + 1)) : (WIDTH * HEIGHT * 9);
 	std::vector<char> buffer;
 	for (int i = 0; i < buffer_size; i++) {
 		buffer.push_back(uncharted);
@@ -59,20 +60,20 @@ void displayMap(std::vector<char> map, int HEIGHT, int WIDTH, char block, char p
 		// index / width * 9 = row
 		// index % width * 3 = column
 		// final index = row * width + column
-		int row = (i / WIDTH) * 9;
-		int col = (i % WIDTH) * 3;
-		int element = row * WIDTH + col;
+		int row = (i / WIDTH) * ((MERGED) ? 1 : 9);
+		int col = (i % WIDTH) * ((MERGED) ? 2 : 3);
+		int element = MERGED ? (row * 2 * (2 * WIDTH + 1) + col) : (row * WIDTH + col);
 		for (int j = 0; j < 9; j++) {
 			int correction = j / 3;
 			char symbol = room[j];
 			if (symbol == '.') symbol = path;
 			else if (symbol == '#') symbol = block;
-			buffer[element + j % 3 + WIDTH * 3 * correction] = symbol;
+			buffer[element + j % 3 + (MERGED ? (2 * WIDTH + 1) : (WIDTH * 3)) * correction] = symbol;
 		}
 	}
 	for (int i = 0; i < buffer_size; i++) {
 		std::cout << buffer[i];
-		if ((i + 1) % (WIDTH * 3) == 0) std::cout << std::endl;
+		if ((i + 1) % (MERGED?(WIDTH*2+1):(WIDTH * 3)) == 0) std::cout << std::endl;
 	}
 }
 

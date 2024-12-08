@@ -22,7 +22,7 @@ void displayArr(T arr[], int length);
 
 void displayMapValues(char map[], int HEIGHT, int WIDTH);
 
-void displayMap(std::vector<char> map, int HEIGHT, int WIDTH, char block, char path, char uncharted);
+void displayMap(std::vector<char> map, int HEIGHT, int WIDTH, char block, char path, char uncharted, bool MERGED);
 
 void displayLine(char c, int length);
 

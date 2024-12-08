@@ -26,6 +26,7 @@ int main(int argc, char** argv)
 	char BLOCK = 178;
 	char PATH = 176;
 	char UNCHARTED = '.';
+	bool MERGED = false;
 	bool CONTINUITY = false;
 	bool DEBUG = false;
 
@@ -35,7 +36,7 @@ int main(int argc, char** argv)
 	{
 		// -w width, -h height, -b block, -p path, -u uncharted
 		// -c continuity, -d debug mode
-		// example: proceduralGenerator.exe -w 20 -h 10 -c -b # -p . -u " "
+		// example: proceduralGenerator.exe - w 20 - h 10 - c - b #  - p .
 		for (int i = 1; i < argc; i++)
 		{
 			if ((strlen(argv[i]) != 2) && (flags.size() == 0))
@@ -72,6 +73,11 @@ int main(int argc, char** argv)
 			{
 				pushLaunchOption(flags, 'x');
 				DEBUG = true;
+			}
+			else if ((strncmp(argv[i], "-m", 2) == 0))
+			{
+				pushLaunchOption(flags, 'x');
+				MERGED = true;
 			}
 			else if (flags.front() == 'w')
 			{
@@ -121,6 +127,12 @@ int main(int argc, char** argv)
 			std::cin.getline(input, 2);
 			std::cin.clear();
 			UNCHARTED = input[0];
+			std::cout << "Merged walls? (y/n) : ";
+			answer = 'n';
+			std::cin >> answer;
+			std::cin.clear();
+			if (answer == 'y' || answer == 'Y') MERGED = true;
+			else MERGED = false;
 			std::cout << "Continuous generation? (y/n) : ";
 			answer = 'n';
 			std::cin >> answer;
@@ -157,7 +169,13 @@ int main(int argc, char** argv)
 	}
 	srand((unsigned int)time(nullptr));
 	generateMap(generatedMap, HEIGHT, WIDTH, CONTINUITY, DEBUG);
-	displayMap(generatedMap, HEIGHT, WIDTH, BLOCK, PATH, UNCHARTED);
+	displayMap(generatedMap, HEIGHT, WIDTH, BLOCK, PATH, UNCHARTED, MERGED);
+	/* // uncomment these lines to display both merged and unmerged mazes;
+	std::cout << "Normal sized map" << std::endl;
+	displayMap(generatedMap, HEIGHT, WIDTH, BLOCK, PATH, UNCHARTED, false);
+	std::cout << "Compressed map" << std::endl;
+	displayMap(generatedMap, HEIGHT, WIDTH, BLOCK, PATH, UNCHARTED, true);
+	//*/
 
 	// end
 	system("PAUSE");
@@ -306,6 +324,12 @@ void generateMap(std::vector<char>& dest, short HEIGHT, short WIDTH, bool CONTIN
 		}
 
 		// prepare possible rooms
+		/*
+		if (CONTINUITY && (params[0] * params[1] * params[2] * params[3] != 0)) {
+			std::cout << (int)(params[0] * params[1] * params[2] * params[3]) << std::endl;
+			continue;
+		}
+		*/
 		for (int i = 0; i < 15; i++)
 		{
 			if (DEBUG) {
@@ -383,7 +407,7 @@ void generateMap(std::vector<char>& dest, short HEIGHT, short WIDTH, bool CONTIN
 		}
 		if (DEBUG) {
 			displayLine('-', WIDTH * 3);
-			displayMap(dest, HEIGHT, WIDTH, '#', '.', ' ');
+			displayMap(dest, HEIGHT, WIDTH, '#', '.', ' ', false);
 			displayLine('-', WIDTH * 3);
 			std::cout << "[Debug] Press enter to continue to the next step";
 			std::cin.get();
