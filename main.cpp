@@ -9,6 +9,7 @@
 #endif //MAP_n_VECTOR
 #include "rooms.hpp"
 #include "display_utility.hpp"
+#include "typecast_utility.hpp"
 #include <random>
 #include <queue>
 #include <time.h>
@@ -18,17 +19,21 @@ const char EMPTY_CELL = 127;
 
 void generateMap(std::vector<char>& dest, short height, short width, bool CONTINUITY, bool DEBUG);
 void pushLaunchOption(std::queue<char> &queue, char);
+template<typename T>
+void populateVector(std::vector<T>& vec, T var, int size);
 
 int main(int argc, char** argv)
 {
 	short HEIGHT = 0;
 	short WIDTH = 0;
+	unsigned int SEED = 0;
 	char BLOCK = 178;
 	char PATH = 176;
 	char UNCHARTED = '.';
 	bool MERGED = false;
 	bool CONTINUITY = false;
 	bool DEBUG = false;
+	bool hasSeed = false;
 
 	// launch options
 	std::queue<char> flags;
@@ -51,6 +56,10 @@ int main(int argc, char** argv)
 			else if ((strncmp(argv[i], "-h", 2) == 0))
 			{
 				pushLaunchOption(flags, 'h');
+			}
+			else if ((strncmp(argv[i], "-s", 2) == 0))
+			{
+				pushLaunchOption(flags, 's');
 			}
 			else if ((strncmp(argv[i], "-b", 2) == 0))
 			{
@@ -81,14 +90,34 @@ int main(int argc, char** argv)
 			}
 			else if (flags.front() == 'w')
 			{
-				WIDTH = atoi(argv[i]);
+				if (!isInt(argv[i]))
+				{
+					std::cout << "Invalid argument -w " << argv[i] << " <- not an integer" << std::endl;
+				}
+				else WIDTH = atoi(argv[i]);
 				if (WIDTH < 4 || WIDTH > 50) WIDTH = 0;
 				flags.pop();
 			}
 			else if (flags.front() == 'h')
 			{
-				HEIGHT = atoi(argv[i]);
+				if (!isInt(argv[i]))
+				{
+					std::cout << "Invalid argument -h " << argv[i] << " <- not an integer" << std::endl;
+				}
+				else HEIGHT = atoi(argv[i]);
 				if (HEIGHT < 4 || HEIGHT > 50) HEIGHT = 0;
+				flags.pop();
+			}
+			else if (flags.front() == 's')
+			{
+				if (!isInt(argv[i]))
+				{
+					std::cout << "Invalid argument -s " << argv[i] << " <- not an integer" << std::endl;
+				}
+				else {
+					SEED = atoi(argv[i]);
+					hasSeed = true;
+				}
 				flags.pop();
 			}
 			else if (flags.front() == 'b')
@@ -160,14 +189,26 @@ int main(int argc, char** argv)
 		std::cout << "Map height (between 4 and 50) = ";
 		std::cin >> HEIGHT;
 	}
+	while (std::cin.fail() || !hasSeed)
+	{
+		if (std::cin.fail())
+		{
+			std::cin.clear();
+			std::cin.ignore(INT_MAX, '\n');
+		}
+		else {
+			hasSeed = true;
+		}
+		std::cout << "Generator seed (between 1 and 4294967295, 0 for random) = ";
+		std::cin >> SEED;
+	}
 	if(std::cin.fail()) std::cin.ignore();
 	
 	// app logic
 	std::vector<char> generatedMap;
-	for (int i = 0; i < HEIGHT * WIDTH; i++) {
-		generatedMap.push_back(EMPTY_CELL);
-	}
-	srand((unsigned int)time(nullptr));
+	populateVector(generatedMap, EMPTY_CELL, WIDTH* HEIGHT);
+	if (hasSeed) srand(SEED);
+	else srand((unsigned int)time(nullptr));
 	generateMap(generatedMap, HEIGHT, WIDTH, CONTINUITY, DEBUG);
 	displayMap(generatedMap, HEIGHT, WIDTH, BLOCK, PATH, UNCHARTED, MERGED);
 	/* // uncomment these lines to display both merged and unmerged mazes;
@@ -180,6 +221,14 @@ int main(int argc, char** argv)
 	// end
 	system("PAUSE");
 	return 0;
+}
+
+template<typename T>
+void populateVector(std::vector<T> &vec, T var, int size) {
+	vec.clear();
+	for (int i = 0; i < size; i++) {
+		vec.push_back(var);
+	}
 }
 
 void pushLaunchOption(std::queue<char> &queue, char c) {
@@ -195,7 +244,7 @@ void pushLaunchOption(std::queue<char> &queue, char c) {
 /// starting from the middle of the array, expands outwards with random rooms
 /// </summary>
 /// <param name="dest"></param>
-void generateMap(std::vector<char>& dest, short HEIGHT, short WIDTH, bool CONTINUITY, bool DEBUG)
+void generateMap(std::vector<char> &dest, short HEIGHT, short WIDTH, bool CONTINUITY, bool DEBUG)
 {
 	std::vector<char> available;
 	std::queue<int> to_process;

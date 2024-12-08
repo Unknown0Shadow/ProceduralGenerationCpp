@@ -1,6 +1,6 @@
 ProceduralGenerationCpp
 
-A procedural generator build in C++ which generates a random N x M enclosed layout akin to a dungeon or maze.
+A procedural generator built in C++ which generates a random N x M enclosed layout akin to a dungeon or maze.
 
 COMPILATION
 -For Windows, simply run compile.bat OR execute the following command in the command prompt: g++ -std=c++11 *.cpp -o proceduralGenerator.exe OR use an IDE (Integrated Development Environment)
@@ -20,6 +20,7 @@ Merged walls (y/n) -> whether or not to display a compressed version of the map 
 Continuous generation (y/n) -> whether or not to generate one continuous path (y), or to fill all adjacent tiles (n) (certain tiles will still not be filled if they are surrounded by walls from all directions)
 Map width -> a natural number in the range [4,50] representing the number of tiles arranged horizontally
 Map Height -> a natural number in the range [4,50] representing the number of tiles arranged vertically
+Generator seed -> a number which can be used to obtain the same generation every run (0 for random)
 
 If you want to display whitespace for any of the symbols, leave the field empty
 Special symbols can be displayed as well, hold left alt while typing the ASCII code for the symbol using the numpad (ex (HOLD) LEFT_ALT + 176) - this ability is specific to Windows, it may or may not exist in other OS's.
@@ -29,6 +30,7 @@ example: proceduralGenerator.exe -w 20 -h 10 -c -b # -p . -u " "
 Possible launch flags:
 -w [width]	(sets the width)
 -h [height]	(sets the height)
+-s [seed]	(generator seed)
 -b [block]	(sets the symbol used for walls)
 -p [path]	(sets the symbol used for paths)
 -u [uncharted]	(sets the symbol used for unmapped areas)
